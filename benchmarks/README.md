@@ -2,17 +2,15 @@
 
 Tables I and II of UniMatcher use the three layouts below from each competition. Each layout is stored as an XZ-compressed contest TXT file. The pattern files, reference outputs and Python judges can be read directly from a checkout.
 
-## Unpack and verify
+## Unpack the layouts
 
-Run the following commands from this directory on Linux. `sha256sum` checks the files as distributed. `xz -dk` creates the layout text alongside each archive and keeps the compressed copy. The six decoded layouts occupy about 1.01 GiB in total.
+Run this command from the benchmarks directory on Linux to unpack each layout alongside its compressed copy. The six decoded layouts occupy about 1.01 GiB in total.
 
 ```sh
-sha256sum -c SHA256SUMS
 find eda2023 eda2024 -type f -name '*.txt.xz' -exec xz -dk -- {} +
-sha256sum -c LAYOUTS.sha256
 ```
 
-To unpack only the 2023 Small layout, run `xz -dk eda2023/public_case/layout/small.txt.xz`. Both manifests use paths relative to this directory. The patterns and answers retain their original text, including line endings and flexible-edge annotations.
+To unpack only the 2023 Small layout, run `xz -dk eda2023/public_case/layout/small.txt.xz`. The patterns and answers retain their original text, including line endings and flexible-edge annotations.
 
 ## 2023 · Single-layer pattern matching
 
