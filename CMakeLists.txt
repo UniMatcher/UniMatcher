@@ -1,0 +1,43 @@
+cmake_minimum_required(VERSION 3.16)
+project(UniMatcher LANGUAGES CXX)
+
+include(cmake/UniMatcherCore.cmake)
+add_subdirectory(io)
+
+# A project embedding UniMatcher gets just the two library targets by default.
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+  set(unimatcher_standalone ON)
+else()
+  set(unimatcher_standalone OFF)
+endif()
+option(UNIMATCHER_BUILD_EXAMPLES "Build the contest runner and GDSII example" ${unimatcher_standalone})
+option(UNIMATCHER_BUILD_TESTS "Build UniMatcher regression tests" ${unimatcher_standalone})
+option(UNIMATCHER_TEST_GPU "Run tests that require an NVIDIA device" OFF)
+
+if(UNIMATCHER_BUILD_EXAMPLES)
+  add_executable(unimatcher-contest apps/contest.cpp)
+  target_link_libraries(unimatcher-contest PRIVATE UniMatcher::core)
+  add_executable(unimatcher-gds examples/match_gds.cpp)
+  target_link_libraries(unimatcher-gds PRIVATE UniMatcher::io UniMatcher::core)
+endif()
+
+if(UNIMATCHER_BUILD_TESTS)
+  enable_testing()
+  add_executable(unimatcher_io_test tests/io.cpp)
+  target_link_libraries(unimatcher_io_test PRIVATE UniMatcher::io)
+  add_test(NAME io COMMAND unimatcher_io_test)
+  add_executable(unimatcher_parallel_io_test tests/parallel_io.cpp)
+  target_link_libraries(unimatcher_parallel_io_test PRIVATE UniMatcher::io)
+  add_test(NAME parallel_io COMMAND unimatcher_parallel_io_test)
+  if(UNIMATCHER_TEST_GPU)
+    add_executable(unimatcher_core_test tests/core.cpp)
+    target_link_libraries(unimatcher_core_test PRIVATE UniMatcher::core)
+    add_test(NAME core COMMAND unimatcher_core_test)
+    if(UNIMATCHER_BUILD_EXAMPLES)
+      add_test(NAME overlapping_gds COMMAND unimatcher-gds
+        "${CMAKE_CURRENT_SOURCE_DIR}/examples/data/overlap.gds"
+        "${CMAKE_CURRENT_SOURCE_DIR}/examples/data/rectangle.gds")
+      set_tests_properties(overlapping_gds PROPERTIES PASS_REGULAR_EXPRESSION "10 10 18 18")
+    endif()
+  endif()
+endif()

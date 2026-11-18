@@ -1,0 +1,3 @@
+# Keep the contest files byte-identical across checkouts.
+eda2023/** -text
+eda2024/** -text
